@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🎓 СамГМУ — Тренажёр первой помощи | Лотерея знаний</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Nunito', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            background: #F4F7FC;
+            color: #1E2A3E;
+            line-height: 1.4;
+        }
+
+        /* светлый градиент + акцент #076DB4 */
+        .app-wrapper {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 24px 20px 50px;
+        }
+
+        /* хедер */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .header h1 {
+            font-size: clamp(1.8rem, 6vw, 2.6rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #076DB4, #0A8AD6, #055a92);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            display: inline-block;
+            padding-bottom: 4px;
+        }
+        .header-badge {
+            background: #E9F0F9;
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #076DB4;
+            margin-top: 10px;
+            backdrop-filter: blur(2px);
+        }
+        .subhead {
+            color: #2C3E50;
+            margin-top: 12px;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        /* прогресс-бар */
+        .progress-panel {
+            background: white;
+            border-radius: 60px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E2EDF7;
+        }
+        .progress-bar-container {
+            flex: 3;
+            min-width: 180px;
+        }
+        .progress-bar-bg {
+            background: #E2E8F0;
+            border-radius: 40px;
+            height: 14px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #076DB4;
+            width: 0%;
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.4s ease;
+            box-shadow: 0 0 0 1px rgba(7,109,180,0.2);
+        }
+        .progress-stats {
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: #EFF3F8;
+            padding: 6px 16px;
+            border-radius: 40px;
+            color: #076DB4;
+            white-space: nowrap;
+        }
+
+        /* табы категорий (светлая тема) */
+        .tabs-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        .cat-btn {
+            background: white;
+            border: 1.5px solid #DCE5EF;
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #2C3E50;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .cat-btn i {
+            margin-right: 6px;
+            font-style: normal;
+        }
+        .cat-btn:hover {
+            border-color: #076DB4;
+            color: #076DB4;
+            background: #F0F6FD;
+            transform: translateY(-1px);
+        }
+        .cat-btn.active {
+            background: #076DB4;
+            border-color: #076DB4;
+            color: white;
+            box-shadow: 0 8px 18px rgba(7,109,180,0.2);
+        }
+        .cat-btn .badge-done {
+            margin-left: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        /* сетка карточек */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 28px;
+        }
+
+        /* карточка лотереи */
+        .lottery-card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #E9F0F5;
+            backdrop-filter: blur(0px);
+        }
+        .lottery-card.revealed {
+            border-left: 6px solid #076DB4;
+            box-shadow: 0 12px 24px rgba(7,109,180,0.12);
+        }
+        .card-inner {
+            padding: 24px 24px 26px;
+        }
+        .card-icon {
+            font-size: 2.3rem;
+            margin-bottom: 12px;
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #0A2B40;
+            margin-bottom: 12px;
+            letter-spacing: -0.2px;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: #2C3E50;
+            margin-bottom: 16px;
+        }
+        .tip-block {
+            background: #EFF6FC;
+            border-left: 4px solid #076DB4;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            color: #076DB4;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        .tip-block span {
+            font-weight: 700;
+        }
+
+        /* слой стирания */
+        .scratch-surface {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            z-index: 15;
+            border-radius: 28px;
+            touch-action: none;
+        }
+        .scratch-surface.removed {
+            display: none;
+        }
+        .scratch-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,240,0.92);
+            backdrop-filter: blur(4px);
+            z-index: 12;
+            border-radius: 28px;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            text-align: center;
+            border: 2px dashed #076DB4;
+            margin: 8px;
+            background: linear-gradient(145deg, #FFFFFF, #F4F9FF);
+        }
+        .scratch-label.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .coin-icon {
+            font-size: 3rem;
+            filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.1));
+            animation: subtleBounce 2s infinite;
+        }
+        @keyframes subtleBounce {
+            0%,100%{ transform: translateY(0px); }
+            50%{ transform: translateY(-5px); }
+        }
+        .scratch-text {
+            font-weight: 800;
+            background: #076DB4;
+            color: white;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .scratch-percent {
+            position: absolute;
+            bottom: 14px;
+            right: 18px;
+            z-index: 20;
+            background: rgba(7,109,180,0.85);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-weight: 800;
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 30px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-family: monospace;
+        }
+        .scratch-percent.visible {
+            opacity: 1;
+        }
+
+        /* модалка */
+        .modal-mask {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-mask.show {
+            display: flex;
+        }
+        .modal-card {
+            background: white;
+            max-width: 460px;
+            width: 100%;
+            border-radius: 40px;
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: 0 40px 60px rgba(0,0,0,0.2);
+            border-top: 8px solid #076DB4;
+        }
+        .modal-card h3 {
+            font-size: 1.8rem;
+            margin: 12px 0 8px;
+            color: #076DB4;
+        }
+        .modal-card p {
+            color: #2C3E50;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        .btn-primary {
+            background: #076DB4;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 800;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 8px rgba(7,109,180,0.3);
+        }
+        .btn-primary:hover {
+            background: #055a92;
+            transform: scale(1.02);
+        }
+
+        /* конфетти элемент */
+        .confetti-fly {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1100;
+            animation: fallAnim linear forwards;
+        }
+        @keyframes fallAnim {
+            0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.75rem;
+            color: #6c86a3;
+            border-top: 1px solid #DDE7F0;
+            padding-top: 24px;
+        }
+        @media (max-width: 680px) {
+            .cards-grid { gap: 18px; }
+            .card-inner { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div class="header">
+        <h1>🏥 Лотерея первой помощи</h1>
+        <div class="header-badge">СамГМУ — Корпоративный тренажёр</div>
+        <div class="subhead">✨ Стирайте монеткой защитный слой, чтобы открыть важные алгоритмы спасения ✨</div>
+    </div>
+
+    <div class="progress-panel">
+        <div class="progress-bar-container">
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="globalProgressFill"></div>
+            </div>
+        </div>
+        <div class="progress-stats" id="progressStats">0 / 0 открыто</div>
+    </div>
+
+    <div class="tabs-row" id="categoryTabs"></div>
+    <div class="cards-grid" id="cardsContainer"></div>
+    <footer>🔹 Каждая карточка — важный навык первой помощи. Сотрите, запомните и применяйте! 🔹</footer>
+</div>
+
+<div class="modal-mask" id="congratsModal">
+    <div class="modal-card">
+        <div>🏆🎉</div>
+        <h3>Блестяще!</h3>
+        <p id="modalMessageText"></p>
+        <button class="btn-primary" id="closeModalBtn">Продолжить учиться</button>
+    </div>
+</div>
+
+<script>
+    // ========= ДАННЫЕ ПО УТВЕРЖДЁННОМУ ТЕКСТУ (исправленный, понятный любому сотруднику) =========
+    const KNOWLEDGE_BASE = {
+        "🫁 Остановка дыхания / СЛР": [
+            { icon: "🫀", title: "Непрямой массаж сердца", text: "Положите основание ладони на центр груди (между сосками). Нажимайте с частотой 100–120 раз в минуту на глубину 5–6 см. Руки прямые, давите весом тела. После каждого нажатия полностью отпускайте грудную клетку.", tip: "🎵 Ритм как у песни «Stayin’ Alive» — 100–120 ударов в минуту." },
+            { icon: "🌬️", title: "Искусственное дыхание", text: "Запрокиньте голову, приподнимите подбородок. Зажмите нос, сделайте 2 плавных вдоха «рот в рот» по 1 секунде, чтобы грудная клетка поднялась. Соотношение: 30 нажатий : 2 вдоха.", tip: "Если не умеете или боитесь — делайте только компрессию груди, это важнее." },
+            { icon: "⚡", title: "Дефибриллятор (AED)", text: "Включите аппарат и следуйте голосовым инструкциям. Наклейте электроды на сухую кожу груди. Убедитесь, что никто не касается пострадавшего, нажмите кнопку разряда.", tip: "AED есть в крупных ТЦ, аэропортах, на стадионах. Ищите зелёный значок сердца." },
+            { icon: "🩺", title: "Как проверить дыхание", text: "Запрокиньте голову, слушайте дыхание, смотрите на грудную клетку, ощущайте выдох щекой. Проверяйте не дольше 10 секунд. Если нет нормального дыхания — начинайте СЛР.", tip: "❗️ Судорожные вдохи или хрипы — НЕ нормальное дыхание." }
+        ],
+        "🩸 Кровотечения и раны": [
+            { icon: "🩹", title: "Остановка артериального кровотечения", text: "Сильно прижмите рану чистой тканью на 10–15 минут непрерывно. Не убирайте руку, чтобы проверить. При пропитывании повязки наложите поверх новую, не снимая нижнюю.", tip: "Если кровь ярко-алая и бьёт фонтаном — жгут выше раны." },
+            { icon: "🦵", title: "Правила наложения жгута", text: "Накладывайте на 5–7 см выше раны поверх одежды или ткани. Затяните до полной остановки крови. Обязательно запишите время наложения! Летом жгут до 60 мин, зимой до 30 мин.", tip: "Нет жгута? Используйте ремень, галстук, шарф + палочку-закрутку." },
+            { icon: "🧴", title: "Мелкие порезы и ссадины", text: "Промойте рану чистой водой. Обработайте края хлоргексидином или перекисью водорода. Не лейте спирт, йод или зелёнку внутрь раны. Наложите стерильную повязку.", tip: "Глубокая рана (более 1 см) или не останавливается кровь — нужен врач." },
+            { icon: "👃", title: "Носовое кровотечение", text: "Наклоните голову вперёд (не назад!). Прижмите крылья носа к перегородке на 10–15 минут. Приложите холод к переносице.", tip: "Если через 20 минут кровь не остановилась — вызовите скорую." }
+        ],
+        "🦴 Травмы, переломы, ушибы": [
+            { icon: "🦴", title: "Перелом конечности", text: "Не пытайтесь вправить кость! Зафиксируйте конечность в том положении, в котором она находится. Используйте шину (доска, палка) и примотайте бинтом выше и ниже перелома.", tip: "Шина должна захватывать два соседних сустава." },
+            { icon: "🧊", title: "Ушиб или растяжение", text: "Приложите холод (лёд через ткань) на 15–20 минут. Обеспечьте покой. При растяжении — эластичный бинт, но не туго. Держите конечность приподнятой.", tip: "Правило RICE: покой, лёд, компрессия, возвышенное положение." },
+            { icon: "🚫", title: "Травма позвоночника", text: "НЕ двигайте и НЕ переворачивайте пострадавшего! Зафиксируйте голову руками с двух сторон. Ждите скорую. Подозревайте при падении с высоты, ДТП, нырянии.", tip: "Любое движение может привести к параличу." },
+            { icon: "💪", title: "Вывих", text: "Не вправляйте самостоятельно! Зафиксируйте сустав повязкой в удобном положении, приложите холод. Обратитесь в травмпункт.", tip: "При вывихе сустав деформирован, движения ограничены и болезненны." }
+        ],
+        "🔥 Ожоги и тепловые поражения": [
+            { icon: "🔥", title: "Термический ожог", text: "Охлаждайте место ожога прохладной проточной водой 15–20 минут. Не используйте лёд, масло, сметану, зубную пасту! Накройте стерильной повязкой.", tip: "При ожоге больше ладони пострадавшего или на лице — вызывайте 103." },
+            { icon: "🫧", title: "Ожоговые пузыри", text: "Никогда не прокалывайте пузыри! Они защищают рану от инфекции. Наложите нетугую стерильную повязку и обратитесь к врачу.", tip: "Пузыри — ожог II степени, заживает до 2 недель." },
+            { icon: "❄️", title: "Обморожение", text: "Переместите в тепло. Наложите теплоизолирующую повязку (вата+бинт+плёнка). Не растирайте снегом, спиртом или маслом. Дайте тёплое сладкое питьё.", tip: "Не отогревайте горячей водой — повредите ткани." },
+            { icon: "☀️", title: "Тепловой удар", text: "Перенесите в тень или прохладу, снимите лишнюю одежду. Оберните влажной тканью, обмахивайте. Давайте пить мелкими глотками.", tip: "Симптомы: высокая температура (>40°C), спутанность сознания, сухая горячая кожа." }
+        ],
+        "🆘 Неотложные состояния": [
+            { icon: "😵", title: "Человек без сознания (дышит)", text: "Переведите в устойчивое боковое положение. Запрокиньте голову. Следите за дыханием до приезда врачей. Расстегните стесняющую одежду.", tip: "Боковое положение не даёт захлебнуться рвотными массами." },
+            { icon: "🍎", title: "Подавился (приём Геймлиха)", text: "Встаньте сзади, обхватите талию. Кулак — между пупком и грудиной. Резко надавите вверх и на себя до 5 раз. Чередуйте с ударами по спине.", tip: "Если человек кашляет — не мешайте, кашель эффективнее!" },
+            { icon: "⚡", title: "Удар электричеством", text: "Отключите источник тока! Не трогайте пострадавшего голыми руками. Используйте сухую палку, верёвку, чтобы отодвинуть провод. Вызовите скорую.", tip: "После удара током всегда нужна госпитализация — поражение сердца может быть скрытым." },
+            { icon: "🐍", title: "Укус змеи", text: "Уложите, обездвижьте укушенную конечность. НЕ отсасывайте яд, НЕ накладывайте жгут. Давайте обильное питьё, срочно в больницу.", tip: "Сфотографируйте змею — поможет врачам с антидотом." },
+            { icon: "📞", title: "Вызов скорой 103 или 112", text: "Чётко сообщите: что случилось, точный адрес, сколько пострадавших, их состояние, ваше имя. Не вешайте трубку первым.", tip: "112 работает даже без SIM-карты и при нулевом балансе." }
+        ]
+    };
+
+    // состояние
+    let currentCategory = Object.keys(KNOWLEDGE_BASE)[0];
+    let revealedMap = {};      // { categoryName: Set(indices) }
+    let startedMap = {};       // для эффекта прогресса
+    let totalCardsCount = 0;
+    
+    function initState() {
+        Object.keys(KNOWLEDGE_BASE).forEach(cat => {
+            revealedMap[cat] = new Set();
+            startedMap[cat] = new Set();
+            totalCardsCount += KNOWLEDGE_BASE[cat].length;
+        });
+    }
+    initState();
+
+    // вспомогательные
+    function totalRevealed() {
+        return Object.values(revealedMap).reduce((acc, set) => acc + set.size, 0);
+    }
+    function totalStarted() {
+        return Object.values(startedMap).reduce((acc, set) => acc + set.size, 0);
+    }
+    function updateGlobalProgress() {
+        const revealed = totalRevealed();
+        const started = totalStarted();
+        const effective = revealed + (started - revealed) * 0.3;
+        const percent = totalCardsCount ? (effective / totalCardsCount) * 100 : 0;
+        document.getElementById('globalProgressFill').style.width = Math.min(percent, 100) + '%';
+        let label = `${revealed} / ${totalCardsCount} открыто`;
+        const inProgress = started - revealed;
+        if (inProgress > 0) label += ` (ещё ${inProgress} в процессе)`;
+        document.getElementById('progressStats').innerText = label;
+        // обновить галочки в табах
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            const cat = btn.dataset.cat;
+            const doneCount = revealedMap[cat]?.size || 0;
+            const totalCat = KNOWLEDGE_BASE[cat].length;
+            const badgeSpan = btn.querySelector('.badge-done');
+            if (badgeSpan) {
+                if (doneCount === totalCat) badgeSpan.innerHTML = ' ✓✓';
+                else if (doneCount > 0) badgeSpan.innerHTML = ` ✓${doneCount}/${totalCat}`;
+                else badgeSpan.innerHTML = '';
+            }
+        });
+    }
+
+    // отрисовка карточек
+    function renderCards(category) {
+        const container = document.getElementById('cardsContainer');
+        container.innerHTML = '';
+        const items = KNOWLEDGE_BASE[category];
+        items.forEach((item, idx) => {
+            const isRevealed = revealedMap[category].has(idx);
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'lottery-card' + (isRevealed ? ' revealed' : '');
+            
+            const inner = document.createElement('div');
+            inner.className = 'card-inner';
+            inner.innerHTML = `
+                <div class="card-icon">${item.icon}</div>
+                <div class="card-title">${item.title}</div>
+                <div class="card-desc">${item.text}</div>
+                <div class="tip-block"><span>💡 Важно:</span> ${item.tip}</div>
+            `;
+            cardDiv.appendChild(inner);
+            
+            if (!isRevealed) {
+                // добавляем canvas стирания и метку
+                const canvas = document.createElement('canvas');
+                canvas.className = 'scratch-surface';
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'scratch-label';
+                labelDiv.innerHTML = `<div class="coin-icon">🪙</div><div class="scratch-text">Сотрите монеткой</div>`;
+                const percentDiv = document.createElement('div');
+                percentDiv.className = 'scratch-percent';
+                cardDiv.appendChild(canvas);
+                cardDiv.appendChild(labelDiv);
+                cardDiv.appendChild(percentDiv);
+                
+                // инициализация стирания после рендера
+                requestAnimationFrame(() => {
+                    initScratchForCard(canvas, labelDiv, percentDiv, cardDiv, category, idx);
+                });
+            }
+            container.appendChild(cardDiv);
+        });
+    }
+
+    function initScratchForCard(canvas, labelEl, percentEl, cardElement, cat, idx) {
+        const rect = cardElement.getBoundingClientRect();
+        let w = rect.width, h = rect.height;
+        if (w === 0 || h === 0) {
+            // fallback
+            w = cardElement.offsetWidth;
+            h = cardElement.offsetHeight;
+            if (w === 0 || h === 0) { w = 360; h = 280; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        // Рисуем непрозрачный защитный слой (светло-серый + узор)
+        ctx.fillStyle = '#EFF3F8';
+        ctx.fillRect(0, 0, w, h);
+        // добавим текстуру (штрихи)
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = '#C7D9E8';
+        for (let i = 0; i < 60; i++) {
+            ctx.fillRect(Math.random() * w, Math.random() * h, 3, 1);
+        }
+        ctx.fillStyle = '#A0BBD6';
+        ctx.font = 'bold 26px "Segoe UI"';
+        ctx.fillText('🪙', w/2-25, h/2);
+        ctx.font = '12px monospace';
+        ctx.fillStyle = '#076DB4';
+        ctx.fillText('сотри', w/2-18, h/2+28);
+        
+        // скругление
+        ctx.globalCompositeOperation = 'destination-in';
+        roundRectCanvas(ctx, 0, 0, w, h, 20);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'destination-out';
+        
+        let isDrawing = false;
+        let lastX = null, lastY = null;
+        let labelHidden = false;
+        let revealedFlag = false;
+        let hasStarted = false;
+        const brushSize = 26;
+        const totalPixels = w * h;
+        
+        function getCoord(e) {
+            const rectCanvas = canvas.getBoundingClientRect();
+            const clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
+            const clientY = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
+            return { x: clientX - rectCanvas.left, y: clientY - rectCanvas.top };
+        }
+        function drawBrush(x,y) {
+            ctx.beginPath();
+            ctx.arc(x, y, brushSize, 0, Math.PI*2);
+            ctx.fill();
+        }
+        function drawLine(x1,y1,x2,y2) {
+            const dist = Math.hypot(x2-x1, y2-y1);
+            const steps = Math.max(Math.ceil(dist/5), 1);
+            for (let i=0;i<=steps;i++) {
+                const t = i/steps;
+                const x = x1 + (x2-x1)*t;
+                const y = y1 + (y2-y1)*t;
+                drawBrush(x,y);
+            }
+        }
+        function scratchMove(x,y) {
+            if (!hasStarted) {
+                hasStarted = true;
+                startedMap[cat].add(idx);
+                cardElement.classList.add('scratching');
+                percentEl.classList.add('visible');
+                updateGlobalProgress();
+            }
+            if (!labelHidden) {
+                labelEl.classList.add('hidden');
+                labelHidden = true;
+            }
+            if (lastX !== null) drawLine(lastX, lastY, x, y);
+            else drawBrush(x, y);
+            lastX = x; lastY = y;
+        }
+        function checkAndReveal() {
+            if (revealedFlag) return;
+            const imgData = ctx.getImageData(0,0,w,h);
+            let cleared = 0;
+            for (let i=3; i<imgData.data.length; i+=4) {
+                if (imgData.data[i] === 0) cleared++;
+            }
+            const pct = Math.floor((cleared / totalPixels) * 100);
+            percentEl.textContent = pct + '%';
+            if (pct >= 48) {
+                revealedFlag = true;
+                // полностью раскрыть
+                canvas.style.transition = 'opacity 0.4s';
+                canvas.style.opacity = '0';
+                labelEl.style.opacity = '0';
+                percentEl.style.opacity = '0';
+                setTimeout(() => {
+                    canvas.remove();
+                    labelEl.remove();
+                    percentEl.remove();
+                }, 400);
+                cardElement.classList.add('revealed');
+                revealedMap[cat].add(idx);
+                updateGlobalProgress();
+                spawnLocalConfetti(cardElement);
+                // если категория полностью открыта
+                if (revealedMap[cat].size === KNOWLEDGE_BASE[cat].length) {
+                    setTimeout(() => showCategoryCompleteModal(cat), 500);
+                }
+            }
+        }
+        
+        const moveHandler = (e) => {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const {x,y} = getCoord(e);
+            if (x>=0 && x<=w && y>=0 && y<=h) scratchMove(x,y);
+        };
+        const startHandler = (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            lastX = null; lastY = null;
+            const {x,y} = getCoord(e);
+            scratchMove(x,y);
+        };
+        const endHandler = () => {
+            isDrawing = false;
+            lastX = null;
+            checkAndReveal();
+        };
+        
+        canvas.addEventListener('mousedown', startHandler);
+        window.addEventListener('mousemove', moveHandler);
+        window.addEventListener('mouseup', endHandler);
+        canvas.addEventListener('touchstart', startHandler, {passive:false});
+        canvas.addEventListener('touchmove', moveHandler, {passive:false});
+        canvas.addEventListener('touchend', endHandler);
+        
+        // сохранение функции очистки не требуется, но в целом ок
+    }
+    
+    function roundRectCanvas(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x+r, y);
+        ctx.lineTo(x+w-r, y);
+        ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+        ctx.lineTo(x+w, y+h-r);
+        ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+        ctx.lineTo(x+r, y+h);
+        ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+        ctx.lineTo(x, y+r);
+        ctx.quadraticCurveTo(x, y, x+r, y);
+        ctx.closePath();
+    }
+    
+    function spawnLocalConfetti(cardEl) {
+        const rect = cardEl.getBoundingClientRect();
+        const cx = rect.left + rect.width/2;
+        const cy = rect.top + rect.height/2;
+        const colors = ['#076DB4','#0F9AE0','#F4C542','#2C7CB0','#FFB347'];
+        for (let i=0;i<24;i++) {
+            const el = document.createElement('div');
+            el.className = 'confetti-fly';
+            el.style.left = cx + (Math.random()-0.5)*100 + 'px';
+            el.style.top = cy + (Math.random()-0.5)*80 + 'px';
+            el.style.width = (Math.random()*8+4)+'px';
+            el.style.height = (Math.random()*8+4)+'px';
+            el.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+            el.style.borderRadius = Math.random()>0.6? '50%':'2px';
+            el.style.animationDuration = (Math.random()*1.2+0.8)+'s';
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(), 2000);
+        }
+    }
+    
+    function showCategoryCompleteModal(catName) {
+        const modal = document.getElementById('congratsModal');
+        const msgSpan = document.getElementById('modalMessageText');
+        const allDone = totalRevealed() === totalCardsCount;
+        if (allDone) {
+            msgSpan.innerHTML = `Поздравляем! Вы открыли все ${totalCardsCount} карточек и полностью освоили алгоритмы первой помощи! 🎉🌟<br>Теперь вы готовы помогать уверенно. Спасибо, сотрудник СамГМУ!`;
+            fullFireworks();
+        } else {
+            msgSpan.innerHTML = `Вы открыли раздел <strong>«${catName}»</strong> целиком! 🧠<br>Продолжайте стирать карточки — знания спасают жизни.`;
+        }
+        modal.classList.add('show');
+    }
+    
+    function fullFireworks() {
+        for (let i=0;i<80;i++) {
+            setTimeout(()=>{
+                const el = document.createElement('div');
+                el.className = 'confetti-fly';
+                el.style.left = Math.random()*100 + 'vw';
+                el.style.top = '-20px';
+                el.style.width = (Math.random()*10+6)+'px';
+                el.style.height = (Math.random()*10+6)+'px';
+                el.style.backgroundColor = ['#076DB4','#F0C45A','#2E9AD0','#E68A2E'][Math.floor(Math.random()*4)];
+                el.style.borderRadius = '2px';
+                el.style.animationDuration = (Math.random()*2+1.5)+'s';
+                document.body.appendChild(el);
+                setTimeout(()=>el.remove(), 4500);
+            }, i*25);
+        }
+    }
+    
+    // табы
+    function buildTabs() {
+        const container = document.getElementById('categoryTabs');
+        container.innerHTML = '';
+        Object.keys(KNOWLEDGE_BASE).forEach(cat => {
+            const btn = document.createElement('div');
+            btn.className = 'cat-btn' + (currentCategory === cat ? ' active' : '');
+            btn.dataset.cat = cat;
+            const total = KNOWLEDGE_BASE[cat].length;
+            const done = revealedMap[cat]?.size || 0;
+            btn.innerHTML = `<i>${cat.split(' ')[0]}</i> ${cat} <span class="badge-done">${done===total && total>0 ? ' ✓✓' : (done>0 ? ` ✓${done}/${total}` : '')}</span>`;
+            btn.addEventListener('click', () => {
+                currentCategory = cat;
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderCards(currentCategory);
+            });
+            container.appendChild(btn);
+        });
+    }
+    
+    function closeModal() {
+        document.getElementById('congratsModal').classList.remove('show');
+    }
+    
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('congratsModal').addEventListener('click', (e) => {
+        if(e.target === document.getElementById('congratsModal')) closeModal();
+    });
+    
+    buildTabs();
+    renderCards(currentCategory);
+    updateGlobalProgress();
+</script>
+</body>
+</html>
